@@ -1,0 +1,70 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build: ContentBuilderExample.DesktopGL",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ContentBuilderExample.DesktopGL/ContentBuilderExample.DesktopGL.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/tl:off"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build: ContentBuilderExample.DesktopVK",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ContentBuilderExample.DesktopVK/ContentBuilderExample.DesktopVK.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/tl:off"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build: ContentBuilderExample.WindowsDX12",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ContentBuilderExample.WindowsDX12/ContentBuilderExample.WindowsDX12.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/tl:off"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build: ContentBuilderExample.Android",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ContentBuilderExample.Android/ContentBuilderExample.Android.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/tl:off"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build: ContentBuilderExample.iOS",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ContentBuilderExample.iOS/ContentBuilderExample.iOS.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/tl:off"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

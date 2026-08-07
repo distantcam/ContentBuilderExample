@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <TieredCompilation>false</TieredCompilation>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>../ContentBuilderExample.Core/Assets/Icon.ico</ApplicationIcon>
+    <AssemblyName>ContentBuilderExample</AssemblyName>
+    <MonoGamePlatform>WindowsDX12</MonoGamePlatform>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ContentBuilderExample.Core\ContentBuilderExample.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+      <UpToDateCheckInput Include="..\Content\Assets\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.Native" Version="3.8.5" />
+    <PackageReference Include="MonoGame.Runtime.Windows.DX12" Version="3.8.5" />
+  </ItemGroup>
+  <Import Project="..\ContentBuilderExample.Content\BuildContent.targets" />
+</Project>

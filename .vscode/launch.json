@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "ContentBuilderExample (DesktopGL)",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/ContentBuilderExample.DesktopGL/ContentBuilderExample.DesktopGL.csproj",
+            "preLaunchTask": "Build: ContentBuilderExample.DesktopGL"
+        },
+        {
+            "name": "ContentBuilderExample (DesktopVK)",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/ContentBuilderExample.DesktopVK/ContentBuilderExample.DesktopVK.csproj",
+            "preLaunchTask": "Build: ContentBuilderExample.DesktopVK"
+        },
+        {
+            "name": "ContentBuilderExample (WindowsDX12)",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/ContentBuilderExample.WindowsDX12/ContentBuilderExample.WindowsDX12.csproj",
+            "preLaunchTask": "Build: ContentBuilderExample.WindowsDX12"
+        },
+        {
+            "name": "ContentBuilderExample (Android / iOS)",
+            "type": "maui",
+            "request": "launch",
+            "preLaunchTask": "maui: Build"
+        }
+    ]
+}

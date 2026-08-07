@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Platforms/">
+    <Project Path="ContentBuilderExample.DesktopGL/ContentBuilderExample.DesktopGL.csproj" />
+    <Project Path="ContentBuilderExample.DesktopVK/ContentBuilderExample.DesktopVK.csproj" />
+    <Project Path="ContentBuilderExample.WindowsDX12/ContentBuilderExample.WindowsDX12.csproj" />
+    <Project Path="ContentBuilderExample.Android/ContentBuilderExample.Android.csproj" />
+    <Project Path="ContentBuilderExample.iOS/ContentBuilderExample.iOS.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Project Path="ContentBuilderExample.Content/ContentBuilderExample.Content.csproj" />
+  <Project Path="ContentBuilderExample.Core/ContentBuilderExample.Core.csproj" />
+</Solution>
