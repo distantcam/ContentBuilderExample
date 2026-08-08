@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/GitHub/">
+    <File Path=".github/workflows/build.yml" />
+  </Folder>
   <Folder Name="/Platforms/">
     <Project Path="ContentBuilderExample.DesktopGL/ContentBuilderExample.DesktopGL.csproj" />
     <Project Path="ContentBuilderExample.DesktopVK/ContentBuilderExample.DesktopVK.csproj" />
@@ -9,6 +12,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
+    <File Path="global.json" />
   </Folder>
   <Project Path="ContentBuilderExample.Content/ContentBuilderExample.Content.csproj" />
   <Project Path="ContentBuilderExample.Core/ContentBuilderExample.Core.csproj" />

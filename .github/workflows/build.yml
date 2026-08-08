@@ -1,0 +1,203 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  # Windows / macOS / Linux heads. Each is built on its native runner so the MonoGame
+  # content pipeline tools (Basisu, Crunch, Dxc, FFmpeg) run as host-native binaries.
+  desktop:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-dx12-x64
+            os: windows-latest
+            project: ContentBuilderExample.WindowsDX12/ContentBuilderExample.WindowsDX12.csproj
+            rid: win-x64
+          - name: windows-gl-x64
+            os: windows-latest
+            project: ContentBuilderExample.DesktopGL/ContentBuilderExample.DesktopGL.csproj
+            rid: win-x64
+          - name: windows-vulkan-x64
+            os: windows-latest
+            project: ContentBuilderExample.DesktopVK/ContentBuilderExample.DesktopVK.csproj
+            rid: win-x64
+          - name: linux-gl-x64
+            os: ubuntu-latest
+            project: ContentBuilderExample.DesktopGL/ContentBuilderExample.DesktopGL.csproj
+            rid: linux-x64
+          - name: linux-vulkan-x64
+            os: ubuntu-latest
+            project: ContentBuilderExample.DesktopVK/ContentBuilderExample.DesktopVK.csproj
+            rid: linux-x64
+          - name: macos-gl-arm64
+            os: macos-latest
+            project: ContentBuilderExample.DesktopGL/ContentBuilderExample.DesktopGL.csproj
+            rid: osx-arm64
+          - name: macos-gl-x64
+            os: macos-latest
+            project: ContentBuilderExample.DesktopGL/ContentBuilderExample.DesktopGL.csproj
+            rid: osx-x64
+          - name: macos-vulkan-arm64
+            os: macos-latest
+            project: ContentBuilderExample.DesktopVK/ContentBuilderExample.DesktopVK.csproj
+            rid: osx-arm64
+          - name: macos-vulkan-x64
+            os: macos-latest
+            project: ContentBuilderExample.DesktopVK/ContentBuilderExample.DesktopVK.csproj
+            rid: osx-x64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The content builder is a net9.0 apphost that MSBuild executes during the build,
+      # so the 9.0 runtime has to be present alongside the 10.0 SDK from global.json.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: nuget-${{ matrix.os }}-${{ hashFiles('**/*.csproj', 'global.json') }}
+          restore-keys: nuget-${{ matrix.os }}-
+
+      # Font/image handling in the content pipeline links against these on Linux.
+      - name: Install Linux native dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfontconfig1 libfreetype6
+
+      - name: Restore content builder
+        run: dotnet restore ContentBuilderExample.Content/ContentBuilderExample.Content.csproj
+
+      - name: Publish
+        run: >
+          dotnet publish ${{ matrix.project }}
+          --configuration Release
+          --runtime ${{ matrix.rid }}
+          --self-contained true
+          --output publish/${{ matrix.name }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ContentBuilderExample-${{ matrix.name }}
+          path: publish/${{ matrix.name }}
+          if-no-files-found: error
+
+  android:
+    name: android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: nuget-android-${{ hashFiles('**/*.csproj', 'global.json') }}
+          restore-keys: nuget-android-
+
+      - name: Install Android workload
+        run: dotnet workload install android
+
+      - name: Restore content builder
+        run: dotnet restore ContentBuilderExample.Content/ContentBuilderExample.Content.csproj
+
+      - name: Publish
+        run: >
+          dotnet publish ContentBuilderExample.Android/ContentBuilderExample.Android.csproj
+          --configuration Release
+          --framework net9.0-android
+          -p:AndroidPackageFormats=aab%3Bapk
+          -p:AndroidKeyStore=false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ContentBuilderExample-android
+          path: |
+            ContentBuilderExample.Android/bin/Release/net9.0-android/**/*.aab
+            ContentBuilderExample.Android/bin/Release/net9.0-android/**/*-Signed.apk
+          if-no-files-found: error
+
+  ios:
+    name: ios
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # .NET 9.0 for iOS needs xcode 26.5
+      - name: Select matching Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.5.app
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: nuget-ios-${{ hashFiles('**/*.csproj', 'global.json') }}
+          restore-keys: nuget-ios-
+
+      - name: Install iOS workload
+        run: dotnet workload install ios
+
+      - name: Restore content builder
+        run: dotnet restore ContentBuilderExample.Content/ContentBuilderExample.Content.csproj
+
+      - name: Build (simulator)
+        run: >
+          dotnet build ContentBuilderExample.iOS/ContentBuilderExample.iOS.csproj
+          --configuration Release
+          --framework net9.0-ios
+          --runtime iossimulator-arm64
+
+      # Zipped with ditto so the .app bundle keeps its symlinks and permissions.
+      - name: Package app bundle
+        run: |
+          APP=$(find ContentBuilderExample.iOS/bin/Release/net9.0-ios -maxdepth 2 -name '*.app' -type d | head -1)
+          test -n "$APP" || { echo "No .app bundle produced"; exit 1; }
+          ditto -c -k --sequesterRsrc --keepParent "$APP" ContentBuilderExample-iossimulator-arm64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ContentBuilderExample-ios-simulator-arm64
+          path: ContentBuilderExample-iossimulator-arm64.zip
+          if-no-files-found: error

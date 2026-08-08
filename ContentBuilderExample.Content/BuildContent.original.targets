@@ -6,19 +6,13 @@
       <ContentArgs>build -p $(MonoGamePlatform) -s ContentBuilderExample.Content/Assets -o $(ContentOutput) -i $(ContentTemp)</ContentArgs>
       <ContentCommand>$(MSBuildThisFileDirectory)bin\Debug\ContentBuilderExample.Content</ContentCommand>
     </PropertyGroup>
-    <MSBuild Projects="$(MSBuildThisFileDirectory)ContentBuilderExample.Content.csproj" Targets="Build" RemoveProperties="Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;PublishReadyToRun;PublishSingleFile;PublishTrimmed;PublishAot" />
+    <MSBuild Projects="$(MSBuildThisFileDirectory)ContentBuilderExample.Content.csproj" Targets="Build" RemoveProperties="Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers" />
     <Exec Command="$(ContentCommand) $(ContentArgs)" WorkingDirectory="$(MSBuildThisFileDirectory)..\" CustomErrorRegularExpression="\[E\] .+" CustomWarningRegularExpression="\[W\] .+" />
-  </Target>
+   </Target>
   <Target Name="AddGeneratedContentAssets"
     AfterTargets="BuildContent">
     <ItemGroup>
       <GeneratedAsset Include="$(ProjectDir)$(OutputPath)Content\**\*" />
-
-      <ResolvedFileToPublish Include="@(GeneratedAsset)"
-        Condition="'$(MonoGamePlatform)' != 'Android' And '$(MonoGamePlatform)' != 'MacOSX' And '$(MonoGamePlatform)' != 'iOS'">
-        <RelativePath>Content/%(GeneratedAsset.RecursiveDir)%(GeneratedAsset.Filename)%(GeneratedAsset.Extension)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </ResolvedFileToPublish>
 
       <AndroidAsset Include="@(GeneratedAsset)"
         Condition="'$(MonoGamePlatform)' == 'Android'">
