@@ -2,10 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [main]
-    tags: ['v*']
   pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -150,8 +147,10 @@ jobs:
         with:
           name: ContentBuilderExample-android
           path: |
-            ContentBuilderExample.Android/bin/Release/net9.0-android/**/*.aab
-            ContentBuilderExample.Android/bin/Release/net9.0-android/**/*-Signed.apk
+            artifacts/bin/ContentBuilderExample.Android/**/*.aab
+            artifacts/bin/ContentBuilderExample.Android/**/*-Signed.apk
+            artifacts/publish/ContentBuilderExample.Android/**/*.aab
+            artifacts/publish/ContentBuilderExample.Android/**/*-Signed.apk
           if-no-files-found: error
 
   ios:
@@ -192,7 +191,7 @@ jobs:
       # Zipped with ditto so the .app bundle keeps its symlinks and permissions.
       - name: Package app bundle
         run: |
-          APP=$(find ContentBuilderExample.iOS/bin/Release/net9.0-ios -maxdepth 2 -name '*.app' -type d | head -1)
+          APP=$(find artifacts/bin/ContentBuilderExample.iOS -maxdepth 3 -name '*.app' -type d | head -1)
           test -n "$APP" || { echo "No .app bundle produced"; exit 1; }
           ditto -c -k --sequesterRsrc --keepParent "$APP" ContentBuilderExample-iossimulator-arm64.zip
 

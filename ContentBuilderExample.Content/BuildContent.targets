@@ -1,18 +1,22 @@
 <Project>
   <Target Name="BuildContent" BeforeTargets="BeforeCompile">
     <PropertyGroup>
-      <ContentOutput>$(ProjectDir)$(OutputPath)</ContentOutput>
-      <ContentTemp>$(ProjectDir)$(IntermediateOutputPath)</ContentTemp>
-      <ContentArgs>build -p $(MonoGamePlatform) -s ContentBuilderExample.Content/Assets -o $(ContentOutput) -i $(ContentTemp)</ContentArgs>
-      <ContentCommand>$(MSBuildThisFileDirectory)bin\Debug\ContentBuilderExample.Content</ContentCommand>
+      <ContentOutput>$([MSBuild]::NormalizeDirectory('$(ProjectDir)', '$(OutputPath)'))</ContentOutput>
+      <ContentTemp>$([MSBuild]::NormalizeDirectory('$(ProjectDir)', '$(IntermediateOutputPath)'))</ContentTemp>
+      <ContentArgs>build -p $(MonoGamePlatform) -s ContentBuilderExample.Content/Assets -o &quot;$(ContentOutput.TrimEnd('\/'))&quot; -i &quot;$(ContentTemp.TrimEnd('\/'))&quot;</ContentArgs>
     </PropertyGroup>
-    <MSBuild Projects="$(MSBuildThisFileDirectory)ContentBuilderExample.Content.csproj" Targets="Build" RemoveProperties="Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;PublishReadyToRun;PublishSingleFile;PublishTrimmed;PublishAot" />
+    <MSBuild Projects="$(MSBuildThisFileDirectory)ContentBuilderExample.Content.csproj" Targets="Build" RemoveProperties="TargetFramework;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;PublishReadyToRun;PublishSingleFile;PublishTrimmed;PublishAot">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentBuilderAssembly" />
+    </MSBuild>
+    <PropertyGroup>
+      <ContentCommand>@(ContentBuilderAssembly->'%(RootDir)%(Directory)%(Filename)')</ContentCommand>
+    </PropertyGroup>
     <Exec Command="$(ContentCommand) $(ContentArgs)" WorkingDirectory="$(MSBuildThisFileDirectory)..\" CustomErrorRegularExpression="\[E\] .+" CustomWarningRegularExpression="\[W\] .+" />
   </Target>
   <Target Name="AddGeneratedContentAssets"
     AfterTargets="BuildContent">
     <ItemGroup>
-      <GeneratedAsset Include="$(ProjectDir)$(OutputPath)Content\**\*" />
+      <GeneratedAsset Include="$(ContentOutput)Content\**\*" />
 
       <ResolvedFileToPublish Include="@(GeneratedAsset)"
         Condition="'$(MonoGamePlatform)' != 'Android' And '$(MonoGamePlatform)' != 'MacOSX' And '$(MonoGamePlatform)' != 'iOS'">
